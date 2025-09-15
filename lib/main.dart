@@ -25,14 +25,14 @@ class MainApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
-            shape: MaterialStatePropertyAll(
+            shape: WidgetStateProperty.all(
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            backgroundColor: MaterialStatePropertyAll(Colors.blueAccent),
-            foregroundColor: MaterialStatePropertyAll(Colors.white),
-            padding: MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 16)),
-            textStyle: MaterialStatePropertyAll(
-              TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
+            foregroundColor: WidgetStateProperty.all(Colors.white),
+            padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16)),
+            textStyle: WidgetStateProperty.all(
+              const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ),
