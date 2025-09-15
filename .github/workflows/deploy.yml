@@ -40,7 +40,7 @@ jobs:
       run: flutter analyze
 
     - name: Build Flutter web
-      run: flutter build web --release --base-href "/training_app/"
+      run: flutter build web --release --base-href "/training-app/"
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
