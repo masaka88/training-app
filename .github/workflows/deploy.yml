@@ -2,7 +2,7 @@ name: Deploy Flutter Web to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, gh-pages ]
   pull_request:
     branches: [ main ]
 
@@ -28,7 +28,10 @@ jobs:
       with:
         flutter-version: '3.24.0'  # より新しい安定版
         channel: 'stable'
-        cache: true  # Flutterキャッシュを有効化
+        cache: false  # Flutterキャッシュを有効化
+
+    - name: Check Flutter version
+      run: flutter --version
 
     - name: Install dependencies
       run: flutter pub get
