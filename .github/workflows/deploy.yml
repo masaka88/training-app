@@ -26,9 +26,9 @@ jobs:
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.35.3'  # より新しい安定版
+        flutter-version: '3.35.3'
         channel: 'stable'
-        cache: true  # Flutterキャッシュを有効化
+        cache: true
 
     - name: Check Flutter version
       run: flutter --version
