@@ -32,7 +32,7 @@ jobs:
 
     - name: Check Flutter version
       run: flutter --version
-
+      
     - name: Install dependencies
       run: flutter pub get
 
@@ -40,7 +40,7 @@ jobs:
       run: flutter analyze
 
     - name: Build Flutter web
-      run: flutter build web --release --web-renderer canvaskit --base-href "/training_app/"
+      run: flutter build web --release --base-href "/training_app/"
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
