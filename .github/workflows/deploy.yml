@@ -2,7 +2,7 @@ name: Deploy Flutter Web to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, gh-pages ]
   pull_request:
     branches: [ main ]
 
@@ -26,10 +26,13 @@ jobs:
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.24.0'  # より新しい安定版
+        flutter-version: '3.35.3'
         channel: 'stable'
-        cache: true  # Flutterキャッシュを有効化
+        cache: true
 
+    - name: Check Flutter version
+      run: flutter --version
+      
     - name: Install dependencies
       run: flutter pub get
 
@@ -37,7 +40,7 @@ jobs:
       run: flutter analyze
 
     - name: Build Flutter web
-      run: flutter build web --release --web-renderer canvaskit --base-href "/training_app/"
+      run: flutter build web --release --base-href "/training_app/"
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
