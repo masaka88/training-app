@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:super_clipboard/super_clipboard.dart';
 
 void main() {
   runApp(const MainApp());
@@ -99,12 +100,43 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
     });
   }
 
-  void _copyToClipboard() {
+  String _convertMarkdownToHtml(String markdown) {
+    // マークダウンの太字 (*テキスト*) をHTMLの太字 (<b>テキスト</b>) に変換
+    String html = markdown.replaceAllMapped(
+      RegExp(r'\*([^*]+)\*'),
+      (match) => '<b>${match.group(1)}</b>',
+    );
+    // 改行をHTMLの改行に変換
+    html = html.replaceAll('\n', '<br>');
+    return html;
+  }
+
+  Future<void> _copyToClipboard() async {
     if (_generatedText.isNotEmpty) {
-      Clipboard.setData(ClipboardData(text: _generatedText));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('クリップボードにコピーしました！')),
-      );
+      final clipboard = SystemClipboard.instance;
+      if (clipboard == null) {
+        // super_clipboardが利用できない場合は通常のクリップボードを使用
+        await Clipboard.setData(ClipboardData(text: _generatedText));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('クリップボードにコピーしました！')),
+          );
+        }
+        return;
+      }
+
+      final item = DataWriterItem();
+      // HTMLテキストとプレーンテキストの両方を追加
+      item.add(Formats.htmlText(_convertMarkdownToHtml(_generatedText)));
+      item.add(Formats.plainText(_generatedText));
+
+      await clipboard.write([item]);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('クリップボードにコピーしました！')),
+        );
+      }
     }
   }
 
