@@ -1,11 +1,31 @@
+import 'package:hive_ce/hive.dart';
+
+part 'training_record.g.dart';
+
+@HiveType(typeId: 0)
 class TrainingRecord {
+  @HiveField(0)
   final String? id;
+
+  @HiveField(1)
   final DateTime date;
+
+  @HiveField(2)
   final String activity; // 何をしたか
+
+  @HiveField(3)
   final String duration; // どれくらいやったか
+
+  @HiveField(4)
   final String? comment; // コメント（任意）
+
+  @HiveField(5)
   final String? location; // どこでやったか（任意）
+
+  @HiveField(6)
   final int monthlyCount; // 月の運動回数
+
+  @HiveField(7)
   final DateTime createdAt;
 
   TrainingRecord({

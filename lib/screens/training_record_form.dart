@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/training_record.dart';
+import '../repositories/training_repository.dart';
 
 class TrainingRecordForm extends StatefulWidget {
   const TrainingRecordForm({super.key});
@@ -16,6 +17,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
   final _commentController = TextEditingController();
   final _whereController = TextEditingController();
   final _countController = TextEditingController();
+  final _repository = TrainingRepository();
 
   DateTime _selectedDate = DateTime.now();
   String _generatedText = '';
@@ -55,6 +57,47 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('クリップボードにコピーしました！')),
       );
+    }
+  }
+
+  Future<void> _saveRecord() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final record = TrainingRecord(
+          date: _selectedDate,
+          activity: _whatDidController.text,
+          duration: _howLongController.text,
+          comment: _commentController.text.trim().isEmpty
+              ? null
+              : _commentController.text,
+          location:
+              _whereController.text.trim().isEmpty ? null : _whereController.text,
+          monthlyCount: int.tryParse(_countController.text) ?? 0,
+        );
+
+        await _repository.saveRecord(record);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('記録を保存しました！'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // メッセージを生成
+          _generateSlackMessage();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('保存に失敗しました: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -181,12 +224,8 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _generateSlackMessage();
-                        }
-                      },
-                      child: const Text('投稿用メッセージを生成'),
+                      onPressed: _saveRecord,
+                      child: const Text('保存して投稿用メッセージを生成'),
                     ),
                   ),
                   if (_generatedText.isNotEmpty) ...[
