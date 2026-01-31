@@ -2,6 +2,9 @@
 set -euo pipefail  # Exit on error, undefined vars, and pipeline failures
 IFS=$'\n\t'       # Stricter word splitting
 
+# ドメインファイルのディレクトリ
+DOMAIN_FILES_DIR="/etc/allowed-domains"
+
 # 1. Extract Docker DNS info BEFORE any flushing
 DOCKER_DNS_RULES=$(iptables-save -t nat | grep "127\.0\.0\.11" || true)
 
@@ -63,31 +66,45 @@ while read -r cidr; do
     ipset add allowed-domains "$cidr"
 done < <(echo "$gh_ranges" | jq -r '(.web + .api + .git)[]' | aggregate -q)
 
-# Resolve and add other allowed domains
-for domain in \
-    "registry.npmjs.org" \
-    "api.anthropic.com" \
-    "sentry.io" \
-    "statsig.anthropic.com" \
-    "statsig.com" \
-    "marketplace.visualstudio.com" \
-    "vscode.blob.core.windows.net" \
-    "update.code.visualstudio.com"; do
-    echo "Resolving $domain..."
-    ips=$(dig +noall +answer A "$domain" | awk '$4 == "A" {print $5}')
-    if [ -z "$ips" ]; then
-        echo "ERROR: Failed to resolve $domain"
-        exit 1
+# ドメインファイルからドメインを読み込んで解決
+echo "Loading domains from $DOMAIN_FILES_DIR..."
+if [ ! -d "$DOMAIN_FILES_DIR" ]; then
+    echo "ERROR: Domain files directory not found: $DOMAIN_FILES_DIR"
+    exit 1
+fi
+
+for domain_file in "$DOMAIN_FILES_DIR"/*.txt; do
+    if [ ! -f "$domain_file" ]; then
+        continue
     fi
-    
-    while read -r ip; do
-        if [[ ! "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-            echo "ERROR: Invalid IP from DNS for $domain: $ip"
+
+    filename=$(basename "$domain_file")
+    echo "Processing domain file: $filename"
+
+    # コメント行(#で始まる)と空行を除外して読み込み
+    while IFS= read -r domain || [ -n "$domain" ]; do
+        # 空行とコメント行をスキップ
+        [[ -z "$domain" || "$domain" =~ ^[[:space:]]*# ]] && continue
+        # 前後の空白を除去
+        domain=$(echo "$domain" | xargs)
+        [[ -z "$domain" ]] && continue
+
+        echo "Resolving $domain..."
+        ips=$(dig +noall +answer A "$domain" | awk '$4 == "A" {print $5}')
+        if [ -z "$ips" ]; then
+            echo "ERROR: Failed to resolve $domain"
             exit 1
         fi
-        echo "Adding $ip for $domain"
-        ipset add allowed-domains "$ip" -exist
-    done < <(echo "$ips")
+
+        while read -r ip; do
+            if [[ ! "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+                echo "ERROR: Invalid IP from DNS for $domain: $ip"
+                exit 1
+            fi
+            echo "Adding $ip for $domain"
+            ipset add allowed-domains "$ip" -exist
+        done < <(echo "$ips")
+    done < "$domain_file"
 done
 
 # Get host IP from default route

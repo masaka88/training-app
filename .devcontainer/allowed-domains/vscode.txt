@@ -1,0 +1,9 @@
+# VS Code関連ドメイン
+# 拡張機能マーケットプレイス
+marketplace.visualstudio.com
+
+# 拡張機能ダウンロード
+vscode.blob.core.windows.net
+
+# VS Code更新
+update.code.visualstudio.com

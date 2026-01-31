@@ -1,0 +1,11 @@
+# Flutter関連ドメイン
+# Google Storage (Flutter SDK)
+storage.googleapis.com
+
+# Dart/Flutterパッケージ
+pub.dev
+pub.dartlang.org
+
+# Flutter SDKダウンロード
+dl.google.com
+chrome-infra-packages.appspot.com

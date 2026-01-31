@@ -13,7 +13,14 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        // === Claude Code関連 ===
         "anthropic.claude-code",
+
+        // === Flutter/Dart関連 ===
+        "Dart-Code.flutter",
+        "Dart-Code.dart-code",
+
+        // === 汎用開発ツール ===
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "eamodio.gitlens"
@@ -39,12 +46,23 @@
   },
   "remoteUser": "node",
   "mounts": [
+    // === 永続化ボリューム ===
+    // コマンド履歴
     "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
+    // Claude設定
     "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume"
   ],
   "containerEnv": {
+    // === Node.js設定 ===
     "NODE_OPTIONS": "--max-old-space-size=4096",
+
+    // === Claude Code設定 ===
     "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+
+    // === Flutter設定 ===
+    "FLUTTER_ROOT": "/home/node/flutter",
+
+    // === シェル設定 ===
     "POWERLEVEL9K_DISABLE_GITSTATUS": "true"
   },
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",

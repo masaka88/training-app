@@ -1,0 +1,11 @@
+# Claude Code関連ドメイン
+# Anthropic API
+api.anthropic.com
+
+# テレメトリ・分析
+sentry.io
+statsig.anthropic.com
+statsig.com
+
+# npm レジストリ
+registry.npmjs.org
