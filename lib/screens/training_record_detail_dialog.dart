@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/training_record.dart';
+import '../repositories/training_repository.dart';
+import 'detail_dialog_result.dart';
 
-/// 戻り値: 'edit' なら編集要求、null はそれ以外
-Future<String?> showRecordDetailDialog(BuildContext context, TrainingRecord record) {
+/// 戻り値: DetailDialogResult.edit なら編集要求、DetailDialogResult.delete なら削除済み、null はそれ以外
+Future<DetailDialogResult?> showRecordDetailDialog(BuildContext context, TrainingRecord record) {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
-  return showDialog<String>(
+  return showDialog<DetailDialogResult>(
     context: context,
     builder: (context) => Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -70,21 +72,40 @@ Future<String?> showRecordDetailDialog(BuildContext context, TrainingRecord reco
                 '${record.monthlyCount}回',
               ),
               const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context, 'edit');
-                  },
-                  icon: const Icon(Icons.edit),
-                  label: const Text('編集'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context, DetailDialogResult.edit);
+                      },
+                      icon: const Icon(Icons.edit),
+                      label: const Text('編集'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _confirmAndDelete(context, record),
+                      icon: const Icon(Icons.delete),
+                      label: const Text('削除'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               SizedBox(
@@ -115,6 +136,35 @@ Future<String?> showRecordDetailDialog(BuildContext context, TrainingRecord reco
       ),
     ),
   );
+}
+
+Future<void> _confirmAndDelete(BuildContext context, TrainingRecord record) async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('確認'),
+      content: const Text('この記録を削除しますか？'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('キャンセル'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text(
+            '削除',
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
+      ],
+    ),
+  );
+  if (confirm == true) {
+    await TrainingRepository().deleteRecord(record.id!);
+    if (context.mounted) {
+      Navigator.pop(context, DetailDialogResult.delete);
+    }
+  }
 }
 
 Widget _detailRow(IconData icon, String label, String value) {

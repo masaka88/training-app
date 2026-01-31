@@ -4,6 +4,7 @@ import '../repositories/training_repository.dart';
 import 'training_record_form.dart';
 import 'training_record_card.dart';
 import 'training_record_detail_dialog.dart';
+import 'detail_dialog_result.dart';
 
 class TrainingRecordList extends StatefulWidget {
   const TrainingRecordList({super.key});
@@ -54,7 +55,9 @@ class _TrainingRecordListState extends State<TrainingRecordList> {
                       record: record,
                       onTap: () async {
                         final dialogResult = await showRecordDetailDialog(context, record);
-                        if (dialogResult == 'edit' && context.mounted) {
+                        if (dialogResult == DetailDialogResult.delete) {
+                          _loadRecords();
+                        } else if (dialogResult == DetailDialogResult.edit && context.mounted) {
                           final formResult = await Navigator.push<bool>(
                             context,
                             MaterialPageRoute(
