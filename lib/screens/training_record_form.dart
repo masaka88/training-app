@@ -49,6 +49,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
         await _repository.saveRecord(record);
 
         if (mounted) {
+          FocusScope.of(context).unfocus();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('記録を保存しました！'),
@@ -90,9 +91,13 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                 ),
               ],
             ),
-            child: Form(
-              key: _formKey,
-              child: Column(
+            child: Actions(
+              actions: <Type, Action<Intent>>{
+                NextFocusIntent: _ComposingAwareNextFocusAction(),
+              },
+              child: Form(
+                key: _formKey,
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
@@ -215,9 +220,30 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                 ],
               ),
             ),
+            ),
           ),
         ),
       ),
     );
+  }
+}
+
+class _ComposingAwareNextFocusAction extends Action<NextFocusIntent> {
+  bool get _isComposing {
+    final context = primaryFocus?.context;
+    if (context == null) return false;
+    final editableText = context.findAncestorStateOfType<EditableTextState>();
+    if (editableText == null) return false;
+    final composing = editableText.textEditingValue.composing;
+    return composing.isValid && !composing.isCollapsed;
+  }
+
+  @override
+  Object? invoke(NextFocusIntent intent) {
+    if (_isComposing) {
+      return null;
+    }
+    primaryFocus?.nextFocus();
+    return null;
   }
 }
