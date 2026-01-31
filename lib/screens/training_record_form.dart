@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../models/training_record.dart';
 import '../repositories/training_repository.dart';
 
@@ -20,7 +19,6 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
   final _repository = TrainingRepository();
 
   DateTime _selectedDate = DateTime.now();
-  String _generatedText = '';
 
   @override
   void dispose() {
@@ -30,34 +28,6 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
     _whereController.dispose();
     _countController.dispose();
     super.dispose();
-  }
-
-  void _generateSlackMessage() {
-    // TrainingRecordモデルを使用してメッセージを生成
-    final record = TrainingRecord(
-      date: _selectedDate,
-      activity: _whatDidController.text,
-      duration: _howLongController.text,
-      comment: _commentController.text.trim().isEmpty
-          ? null
-          : _commentController.text,
-      location:
-          _whereController.text.trim().isEmpty ? null : _whereController.text,
-      monthlyCount: int.tryParse(_countController.text) ?? 0,
-    );
-
-    setState(() {
-      _generatedText = record.toSlackMessage();
-    });
-  }
-
-  void _copyToClipboard() {
-    if (_generatedText.isNotEmpty) {
-      Clipboard.setData(ClipboardData(text: _generatedText));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('クリップボードにコピーしました！')),
-      );
-    }
   }
 
   Future<void> _saveRecord() async {
@@ -85,8 +55,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
             ),
           );
 
-          // メッセージを生成
-          _generateSlackMessage();
+          Navigator.pop(context, true);
         }
       } catch (e) {
         if (mounted) {
@@ -228,57 +197,6 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                       child: const Text('保存して投稿用メッセージを生成'),
                     ),
                   ),
-                  if (_generatedText.isNotEmpty) ...[
-                    const SizedBox(height: 32),
-                    Card(
-                      elevation: 2,
-                      color: const Color(0xFFF5F7FB),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              '生成されたメッセージ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.white,
-                              ),
-                              child: Text(
-                                _generatedText,
-                                style: const TextStyle(
-                                  fontFamily: 'monospace',
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 18),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: _copyToClipboard,
-                                icon: const Icon(Icons.copy),
-                                label: const Text('クリップボードにコピー'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
