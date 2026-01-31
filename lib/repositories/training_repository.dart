@@ -3,6 +3,10 @@ import 'package:uuid/uuid.dart';
 import '../models/training_record.dart';
 
 class TrainingRepository {
+  static final TrainingRepository _instance = TrainingRepository._internal();
+  factory TrainingRepository() => _instance;
+  TrainingRepository._internal();
+
   static const String _boxName = 'training_records';
   final _uuid = const Uuid();
 
