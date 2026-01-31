@@ -40,8 +40,9 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
           comment: _commentController.text.trim().isEmpty
               ? null
               : _commentController.text,
-          location:
-              _whereController.text.trim().isEmpty ? null : _whereController.text,
+          location: _whereController.text.trim().isEmpty
+              ? null
+              : _whereController.text,
           monthlyCount: int.tryParse(_countController.text) ?? 0,
         );
 
@@ -54,7 +55,6 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
               backgroundColor: Colors.green,
             ),
           );
-
           Navigator.pop(context, true);
         }
       } catch (e) {
@@ -73,9 +73,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('トレーニング記録'),
-      ),
+      appBar: AppBar(title: const Text('トレーニング記録')),
       body: Center(
         child: SingleChildScrollView(
           child: Container(
@@ -97,11 +95,15 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('日付', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    '日付',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   ListTile(
                     title: Text(
-                        '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day}'),
+                      '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day}',
+                    ),
                     trailing: const Icon(Icons.calendar_today),
                     onTap: () async {
                       final date = await showDatePicker(
@@ -118,7 +120,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  const Text('何をしたか', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    '何をしたか',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _whatDidController,
@@ -135,8 +140,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  const Text('どれくらいの時間やったか',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'どれくらいの時間やったか',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _howLongController,
@@ -152,7 +159,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  const Text('コメント', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'コメント',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _commentController,
@@ -163,7 +173,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     maxLines: 2,
                   ),
                   const SizedBox(height: 16),
-                  const Text('どこでやったか', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'どこでやったか',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _whereController,
@@ -173,8 +186,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text('${_selectedDate.month}月の運動回数',
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    '${_selectedDate.month}月の運動回数',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _countController,
@@ -194,7 +209,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _saveRecord,
-                      child: const Text('保存して投稿用メッセージを生成'),
+                      child: const Text('登録'),
                     ),
                   ),
                 ],
