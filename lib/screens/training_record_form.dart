@@ -228,6 +228,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
   }
 }
 
+/// Flutter WebではIME変換中にTabキーを押すとフォーカスが次のフィールドに移動し、
+/// TextInputConnectionの不整合によりアサーションエラーが発生する。
+/// このActionはIME変換中（composing中）のみTabによるフォーカス移動を抑制し、
+/// 通常時は標準のフォーカス移動を維持する。
 class _ComposingAwareNextFocusAction extends Action<NextFocusIntent> {
   bool get _isComposing {
     final context = primaryFocus?.context;
