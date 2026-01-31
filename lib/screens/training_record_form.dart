@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../models/training_record.dart';
 import '../repositories/training_repository.dart';
 
@@ -20,7 +19,6 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
   final _repository = TrainingRepository();
 
   DateTime _selectedDate = DateTime.now();
-  String _generatedText = '';
 
   @override
   void dispose() {
@@ -30,34 +28,6 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
     _whereController.dispose();
     _countController.dispose();
     super.dispose();
-  }
-
-  void _generateSlackMessage() {
-    // TrainingRecordモデルを使用してメッセージを生成
-    final record = TrainingRecord(
-      date: _selectedDate,
-      activity: _whatDidController.text,
-      duration: _howLongController.text,
-      comment: _commentController.text.trim().isEmpty
-          ? null
-          : _commentController.text,
-      location:
-          _whereController.text.trim().isEmpty ? null : _whereController.text,
-      monthlyCount: int.tryParse(_countController.text) ?? 0,
-    );
-
-    setState(() {
-      _generatedText = record.toSlackMessage();
-    });
-  }
-
-  void _copyToClipboard() {
-    if (_generatedText.isNotEmpty) {
-      Clipboard.setData(ClipboardData(text: _generatedText));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('クリップボードにコピーしました！')),
-      );
-    }
   }
 
   Future<void> _saveRecord() async {
@@ -70,23 +40,23 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
           comment: _commentController.text.trim().isEmpty
               ? null
               : _commentController.text,
-          location:
-              _whereController.text.trim().isEmpty ? null : _whereController.text,
+          location: _whereController.text.trim().isEmpty
+              ? null
+              : _whereController.text,
           monthlyCount: int.tryParse(_countController.text) ?? 0,
         );
 
         await _repository.saveRecord(record);
 
         if (mounted) {
+          FocusScope.of(context).unfocus();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('記録を保存しました！'),
               backgroundColor: Colors.green,
             ),
           );
-
-          // メッセージを生成
-          _generateSlackMessage();
+          Navigator.pop(context, true);
         }
       } catch (e) {
         if (mounted) {
@@ -104,9 +74,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('トレーニング記録'),
-      ),
+      appBar: AppBar(title: const Text('トレーニング記録')),
       body: Center(
         child: SingleChildScrollView(
           child: Container(
@@ -123,16 +91,24 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                 ),
               ],
             ),
-            child: Form(
-              key: _formKey,
-              child: Column(
+            child: Actions(
+              actions: <Type, Action<Intent>>{
+                NextFocusIntent: _ComposingAwareNextFocusAction(),
+              },
+              child: Form(
+                key: _formKey,
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('日付', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    '日付',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   ListTile(
                     title: Text(
-                        '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day}'),
+                      '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day}',
+                    ),
                     trailing: const Icon(Icons.calendar_today),
                     onTap: () async {
                       final date = await showDatePicker(
@@ -149,7 +125,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  const Text('何をしたか', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    '何をしたか',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _whatDidController,
@@ -166,8 +145,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  const Text('どれくらいの時間やったか',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'どれくらいの時間やったか',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _howLongController,
@@ -183,7 +164,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  const Text('コメント', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'コメント',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _commentController,
@@ -194,7 +178,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     maxLines: 2,
                   ),
                   const SizedBox(height: 16),
-                  const Text('どこでやったか', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'どこでやったか',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _whereController,
@@ -204,8 +191,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text('${_selectedDate.month}月の運動回数',
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    '${_selectedDate.month}月の運動回数',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _countController,
@@ -225,66 +214,40 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _saveRecord,
-                      child: const Text('保存して投稿用メッセージを生成'),
+                      child: const Text('登録'),
                     ),
                   ),
-                  if (_generatedText.isNotEmpty) ...[
-                    const SizedBox(height: 32),
-                    Card(
-                      elevation: 2,
-                      color: const Color(0xFFF5F7FB),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              '生成されたメッセージ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.white,
-                              ),
-                              child: Text(
-                                _generatedText,
-                                style: const TextStyle(
-                                  fontFamily: 'monospace',
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 18),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: _copyToClipboard,
-                                icon: const Icon(Icons.copy),
-                                label: const Text('クリップボードにコピー'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
               ),
+            ),
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+/// Flutter WebではIME変換中にTabキーを押すとフォーカスが次のフィールドに移動し、
+/// TextInputConnectionの不整合によりアサーションエラーが発生する。
+/// このActionはIME変換中（composing中）のみTabによるフォーカス移動を抑制し、
+/// 通常時は標準のフォーカス移動を維持する。
+class _ComposingAwareNextFocusAction extends Action<NextFocusIntent> {
+  bool get _isComposing {
+    final context = primaryFocus?.context;
+    if (context == null) return false;
+    final editableText = context.findAncestorStateOfType<EditableTextState>();
+    if (editableText == null) return false;
+    final composing = editableText.textEditingValue.composing;
+    return composing.isValid && !composing.isCollapsed;
+  }
+
+  @override
+  Object? invoke(NextFocusIntent intent) {
+    if (_isComposing) {
+      return null;
+    }
+    primaryFocus?.nextFocus();
+    return null;
   }
 }

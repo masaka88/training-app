@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'models/training_record.dart';
-import 'screens/training_record_form.dart';
+import 'screens/training_record_list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,7 +47,7 @@ class MainApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const TrainingRecordForm(),
+      home: const TrainingRecordList(),
     );
   }
 }
