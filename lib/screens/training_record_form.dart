@@ -3,7 +3,9 @@ import '../models/training_record.dart';
 import '../repositories/training_repository.dart';
 
 class TrainingRecordForm extends StatefulWidget {
-  const TrainingRecordForm({super.key});
+  final TrainingRecord? record;
+
+  const TrainingRecordForm({super.key, this.record});
 
   @override
   State<TrainingRecordForm> createState() => _TrainingRecordFormState();
@@ -20,6 +22,22 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
 
   DateTime _selectedDate = DateTime.now();
 
+  bool get _isEditing => widget.record != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final record = widget.record;
+    if (record != null) {
+      _selectedDate = record.date;
+      _whatDidController.text = record.activity;
+      _howLongController.text = record.duration;
+      _commentController.text = record.comment ?? '';
+      _whereController.text = record.location ?? '';
+      _countController.text = record.monthlyCount.toString();
+    }
+  }
+
   @override
   void dispose() {
     _whatDidController.dispose();
@@ -34,6 +52,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
     if (_formKey.currentState!.validate()) {
       try {
         final record = TrainingRecord(
+          id: widget.record?.id,
           date: _selectedDate,
           activity: _whatDidController.text,
           duration: _howLongController.text,
@@ -44,6 +63,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
               ? null
               : _whereController.text,
           monthlyCount: int.tryParse(_countController.text) ?? 0,
+          createdAt: widget.record?.createdAt,
         );
 
         await _repository.saveRecord(record);
@@ -74,7 +94,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('トレーニング記録')),
+      appBar: AppBar(title: Text(_isEditing ? 'トレーニング記録編集' : 'トレーニング記録登録')),
       body: Center(
         child: SingleChildScrollView(
           child: Container(
@@ -214,7 +234,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _saveRecord,
-                      child: const Text('登録'),
+                      child: Text(_isEditing ? '更新' : '登録'),
                     ),
                   ),
                 ],

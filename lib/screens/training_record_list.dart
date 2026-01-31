@@ -52,7 +52,20 @@ class _TrainingRecordListState extends State<TrainingRecordList> {
                     final record = _records[index];
                     return TrainingRecordCard(
                       record: record,
-                      onTap: () => showRecordDetailDialog(context, record),
+                      onTap: () async {
+                        final dialogResult = await showRecordDetailDialog(context, record);
+                        if (dialogResult == 'edit' && context.mounted) {
+                          final formResult = await Navigator.push<bool>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TrainingRecordForm(record: record),
+                            ),
+                          );
+                          if (formResult == true) {
+                            _loadRecords();
+                          }
+                        }
+                      },
                     );
                   },
                 ),
