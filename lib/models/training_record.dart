@@ -28,6 +28,9 @@ class TrainingRecord {
   @HiveField(7)
   final DateTime createdAt;
 
+  /// 'yyyy/M/d' 形式の日付文字列
+  String get formattedDate => '${date.year}/${date.month}/${date.day}';
+
   TrainingRecord({
     this.id,
     required this.date,
