@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/training_record.dart';
 
-void showRecordDetailDialog(BuildContext context, TrainingRecord record) {
+/// 戻り値: 'edit' なら編集要求、null はそれ以外
+Future<String?> showRecordDetailDialog(BuildContext context, TrainingRecord record) {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
-  showDialog(
+  return showDialog<String>(
     context: context,
     builder: (context) => Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -69,6 +70,23 @@ void showRecordDetailDialog(BuildContext context, TrainingRecord record) {
                 '${record.monthlyCount}回',
               ),
               const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context, 'edit');
+                  },
+                  icon: const Icon(Icons.edit),
+                  label: const Text('編集'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
