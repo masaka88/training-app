@@ -91,6 +91,61 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
     }
   }
 
+  Widget _buildLabeledField({
+    required String label,
+    required TextEditingController controller,
+    int? maxLines,
+    String? Function(String?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: '',
+            border: OutlineInputBorder(),
+          ),
+          maxLines: maxLines,
+          validator: validator,
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildDatePicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('日付', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        ListTile(
+          title: Text(
+            '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day}',
+          ),
+          trailing: const Icon(Icons.calendar_today),
+          onTap: () async {
+            final date = await showDatePicker(
+              context: context,
+              initialDate: _selectedDate,
+              firstDate: DateTime(2020),
+              lastDate: DateTime.now().add(const Duration(days: 365)),
+            );
+            if (date != null) {
+              setState(() {
+                _selectedDate = date;
+              });
+            }
+          },
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,42 +175,10 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                 child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '日付',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  ListTile(
-                    title: Text(
-                      '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day}',
-                    ),
-                    trailing: const Icon(Icons.calendar_today),
-                    onTap: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: _selectedDate,
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
-                      );
-                      if (date != null) {
-                        setState(() {
-                          _selectedDate = date;
-                        });
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    '何をしたか',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
+                  _buildDatePicker(),
+                  _buildLabeledField(
+                    label: '何をしたか',
                     controller: _whatDidController,
-                    decoration: const InputDecoration(
-                      hintText: '',
-                      border: OutlineInputBorder(),
-                    ),
                     maxLines: 3,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -164,18 +187,9 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'どれくらいの時間やったか',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
+                  _buildLabeledField(
+                    label: 'どれくらいの時間やったか',
                     controller: _howLongController,
-                    decoration: const InputDecoration(
-                      hintText: '',
-                      border: OutlineInputBorder(),
-                    ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'どれくらいの時間やったかを入力してください';
@@ -183,45 +197,18 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'コメント',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
+                  _buildLabeledField(
+                    label: 'コメント',
                     controller: _commentController,
-                    decoration: const InputDecoration(
-                      hintText: '',
-                      border: OutlineInputBorder(),
-                    ),
                     maxLines: 2,
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'どこでやったか',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
+                  _buildLabeledField(
+                    label: 'どこでやったか',
                     controller: _whereController,
-                    decoration: const InputDecoration(
-                      hintText: '',
-                      border: OutlineInputBorder(),
-                    ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '${_selectedDate.month}月の運動回数',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
+                  _buildLabeledField(
+                    label: '${_selectedDate.month}月の運動回数',
                     controller: _countController,
-                    decoration: const InputDecoration(
-                      hintText: '',
-                      border: OutlineInputBorder(),
-                    ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return '運動回数を入力してください';
@@ -229,7 +216,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 8),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

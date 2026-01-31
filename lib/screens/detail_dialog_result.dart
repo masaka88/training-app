@@ -1,0 +1,1 @@
+enum DetailDialogResult { edit, delete }
