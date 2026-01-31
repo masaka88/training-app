@@ -72,7 +72,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     ninja-build \
     pkg-config \
+    chromium \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set Chromium as Chrome executable for Flutter web
+ENV CHROME_EXECUTABLE=/usr/bin/chromium
 
 # Install Flutter SDK
 ARG FLUTTER_VERSION=3.29.2

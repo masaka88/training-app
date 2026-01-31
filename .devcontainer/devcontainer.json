@@ -61,12 +61,20 @@
 
     // === Flutter設定 ===
     "FLUTTER_ROOT": "/home/node/flutter",
+    "CHROME_EXECUTABLE": "/usr/bin/chromium",
 
     // === シェル設定 ===
     "POWERLEVEL9K_DISABLE_GITSTATUS": "true"
   },
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
   "workspaceFolder": "/workspace",
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Flutter Web",
+      "onAutoForward": "notify"
+    }
+  },
   "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
   "waitFor": "postStartCommand"
 }

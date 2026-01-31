@@ -20,12 +20,20 @@ When communicating with users, respond in Japanese.
 
 ## Development Commands
 
-**Note**: This project requires Flutter SDK to be installed and available in the PATH.
+Flutter/Dartコマンドはdevcontainer内で実行すること。ローカルホストからは以下のプレフィックスを付けて実行する：
+
+```
+devcontainer exec --workspace-folder <プロジェクトルートの絶対パス> <command>
+```
+
+例：
+- `devcontainer exec --workspace-folder <プロジェクトルートの絶対パス> flutter pub get`
+- `devcontainer exec --workspace-folder <プロジェクトルートの絶対パス> flutter run -d web-server --web-port=3000 --web-hostname=0.0.0.0`
 
 ### Essential Commands
 
 - **Install dependencies**: `flutter pub get`
-- **Run the app**: `flutter run`
+- **Run the app (web)**: `flutter run -d web-server --web-port=3000 --web-hostname=0.0.0.0` → ブラウザで http://localhost:3000 にアクセス
 - **Build for release**: `flutter build apk` (Android) or `flutter build ios` (iOS)
 - **Run tests**: `flutter test` (no tests currently exist)
 - **Analyze code**: `flutter analyze`
