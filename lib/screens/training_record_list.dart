@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/training_record.dart';
-import '../main.dart' show repository;
+import '../repositories/repository_provider.dart';
 import '../repositories/training_repository.dart';
 import 'training_record_form.dart';
 import 'training_record_card.dart';

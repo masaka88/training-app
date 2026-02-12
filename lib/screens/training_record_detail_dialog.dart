@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/training_record.dart';
-import '../main.dart' show repository;
+import '../repositories/repository_provider.dart';
 import 'detail_dialog_result.dart';
 
 /// 戻り値: DetailDialogResult.edit なら編集要求、DetailDialogResult.delete なら削除済み、null はそれ以外

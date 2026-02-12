@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'models/training_record.dart';
+import 'repositories/repository_provider.dart';
 import 'repositories/training_repository.dart';
 import 'screens/training_record_list.dart';
-
-late final TrainingRepository repository;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
