@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'models/training_record.dart';
+import 'repositories/training_repository.dart';
 import 'screens/training_record_list.dart';
+
+late final TrainingRepository repository;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +14,10 @@ void main() async {
 
   // TrainingRecordAdapterの登録
   Hive.registerAdapter(TrainingRecordAdapter());
+
+  // Repositoryの初期化
+  final box = await Hive.openBox<TrainingRecord>('training_records');
+  repository = TrainingRepository(box);
 
   runApp(const MainApp());
 }

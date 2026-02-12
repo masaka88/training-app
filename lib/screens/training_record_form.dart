@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/training_record.dart';
-import '../repositories/training_repository.dart';
+import '../main.dart' show repository;
+import '../utils/display_helpers.dart';
 
 class TrainingRecordForm extends StatefulWidget {
   final TrainingRecord? record;
@@ -18,7 +19,7 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
   final _commentController = TextEditingController();
   final _whereController = TextEditingController();
   final _countController = TextEditingController();
-  final _repository = TrainingRepository();
+  final _repository = repository;
 
   DateTime _selectedDate = DateTime.now();
 
@@ -56,13 +57,9 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
           date: _selectedDate,
           activity: _whatDidController.text,
           duration: _howLongController.text,
-          comment: _commentController.text.trim().isEmpty
-              ? null
-              : _commentController.text,
-          location: _whereController.text.trim().isEmpty
-              ? null
-              : _whereController.text,
-          monthlyCount: int.tryParse(_countController.text) ?? 0,
+          comment: emptyToNull(_commentController.text),
+          location: emptyToNull(_whereController.text),
+          monthlyCount: parseIntOrDefault(_countController.text),
           createdAt: widget.record?.createdAt,
         );
 
