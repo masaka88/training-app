@@ -2,6 +2,11 @@ import 'package:hive_ce/hive.dart';
 import 'package:uuid/uuid.dart';
 import '../models/training_record.dart';
 
+/// トレーニング記録のデータアクセス層。
+///
+/// 現在はHive Boxを直接使用しており、一部メソッド（getAllRecords, getRecordById,
+/// getRecordsByDateRange）は同期的に完結する。将来リモートAPIへの差し替えを
+/// 考慮してFuture型のインターフェースを維持している。
 class TrainingRepository {
   final Box<TrainingRecord> _box;
   final Uuid _uuid;
