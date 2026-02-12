@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/training_record.dart';
+import '../utils/display_helpers.dart';
 
 class TrainingRecordCard extends StatelessWidget {
   final TrainingRecord record;
@@ -13,17 +14,8 @@ class TrainingRecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activityDisplay = record.activity
-        .split('\n')
-        .where((l) => l.trim().isNotEmpty)
-        .join(' / ');
-
-    final commentPreview =
-        (record.comment != null && record.comment!.trim().isNotEmpty)
-            ? (record.comment!.trim().length > 20
-                ? '${record.comment!.trim().substring(0, 20)}...'
-                : record.comment!.trim())
-            : null;
+    final activityDisplay = formatActivityDisplay(record.activity);
+    final commentPreview = formatCommentPreview(record.comment);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
