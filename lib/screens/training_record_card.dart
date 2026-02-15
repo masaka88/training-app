@@ -20,9 +20,7 @@ class TrainingRecordCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
         onTap: onTap,
@@ -32,13 +30,11 @@ class TrainingRecordCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
-                backgroundColor:
-                    Theme.of(context).colorScheme.primaryContainer,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                 child: Icon(
                   Icons.fitness_center,
                   size: 20,
-                  color:
-                      Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
               ),
               const SizedBox(width: 12),
@@ -91,8 +87,7 @@ class TrainingRecordCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color:
-                          Theme.of(context).colorScheme.primaryContainer,
+                      color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -100,17 +95,12 @@ class TrainingRecordCard extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onPrimaryContainer,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Icon(
-                    Icons.chevron_right,
-                    color: Colors.grey.shade400,
-                  ),
+                  Icon(Icons.chevron_right, color: Colors.grey.shade400),
                 ],
               ),
             ],
@@ -126,10 +116,7 @@ class TrainingRecordCard extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: Colors.grey.shade500),
         const SizedBox(width: 3),
-        Text(
-          text,
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-        ),
+        Text(text, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
       ],
     );
   }

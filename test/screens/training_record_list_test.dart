@@ -24,8 +24,7 @@ void main() {
 
   group('TrainingRecordList', () {
     testWidgets('レコードがない場合は空状態メッセージを表示する', (tester) async {
-      when(() => mockRepository.getAllRecords())
-          .thenAnswer((_) async => []);
+      when(() => mockRepository.getAllRecords()).thenAnswer((_) async => []);
 
       await tester.pumpWidget(buildTestWidget());
       // 初回pumpでFutureを解決
@@ -38,8 +37,9 @@ void main() {
     testWidgets('ローディング中はCircularProgressIndicatorを表示する', (tester) async {
       // Completerで解決しないFutureを作りローディング状態を維持
       final completer = Completer<List<TrainingRecord>>();
-      when(() => mockRepository.getAllRecords())
-          .thenAnswer((_) => completer.future);
+      when(
+        () => mockRepository.getAllRecords(),
+      ).thenAnswer((_) => completer.future);
 
       await tester.pumpWidget(buildTestWidget());
 
@@ -61,8 +61,9 @@ void main() {
           monthlyCount: 5,
         ),
       ];
-      when(() => mockRepository.getAllRecords())
-          .thenAnswer((_) async => records);
+      when(
+        () => mockRepository.getAllRecords(),
+      ).thenAnswer((_) async => records);
 
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
@@ -88,8 +89,9 @@ void main() {
           monthlyCount: 5,
         ),
       ];
-      when(() => mockRepository.getAllRecords())
-          .thenAnswer((_) async => records);
+      when(
+        () => mockRepository.getAllRecords(),
+      ).thenAnswer((_) async => records);
 
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
@@ -99,8 +101,7 @@ void main() {
     });
 
     testWidgets('FABが表示される', (tester) async {
-      when(() => mockRepository.getAllRecords())
-          .thenAnswer((_) async => []);
+      when(() => mockRepository.getAllRecords()).thenAnswer((_) async => []);
 
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
@@ -110,8 +111,7 @@ void main() {
     });
 
     testWidgets('AppBarにタイトルが表示される', (tester) async {
-      when(() => mockRepository.getAllRecords())
-          .thenAnswer((_) async => []);
+      when(() => mockRepository.getAllRecords()).thenAnswer((_) async => []);
 
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();

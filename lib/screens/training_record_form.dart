@@ -170,60 +170,60 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
               child: Form(
                 key: _formKey,
                 child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildDatePicker(),
-                  _buildLabeledField(
-                    label: '何をしたか',
-                    controller: _whatDidController,
-                    maxLines: 3,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return '何をしたかを入力してください';
-                      }
-                      return null;
-                    },
-                  ),
-                  _buildLabeledField(
-                    label: 'どれくらいの時間やったか',
-                    controller: _howLongController,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'どれくらいの時間やったかを入力してください';
-                      }
-                      return null;
-                    },
-                  ),
-                  _buildLabeledField(
-                    label: 'コメント',
-                    controller: _commentController,
-                    maxLines: 2,
-                  ),
-                  _buildLabeledField(
-                    label: 'どこでやったか',
-                    controller: _whereController,
-                  ),
-                  _buildLabeledField(
-                    label: '${_selectedDate.month}月の運動回数',
-                    controller: _countController,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return '運動回数を入力してください';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _saveRecord,
-                      child: Text(_isEditing ? '更新' : '登録'),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildDatePicker(),
+                    _buildLabeledField(
+                      label: '何をしたか',
+                      controller: _whatDidController,
+                      maxLines: 3,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return '何をしたかを入力してください';
+                        }
+                        return null;
+                      },
                     ),
-                  ),
-                ],
+                    _buildLabeledField(
+                      label: 'どれくらいの時間やったか',
+                      controller: _howLongController,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'どれくらいの時間やったかを入力してください';
+                        }
+                        return null;
+                      },
+                    ),
+                    _buildLabeledField(
+                      label: 'コメント',
+                      controller: _commentController,
+                      maxLines: 2,
+                    ),
+                    _buildLabeledField(
+                      label: 'どこでやったか',
+                      controller: _whereController,
+                    ),
+                    _buildLabeledField(
+                      label: '${_selectedDate.month}月の運動回数',
+                      controller: _countController,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return '運動回数を入力してください';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _saveRecord,
+                        child: Text(_isEditing ? '更新' : '登録'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
             ),
           ),
         ),

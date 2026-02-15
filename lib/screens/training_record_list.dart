@@ -17,7 +17,8 @@ class TrainingRecordList extends StatefulWidget {
 }
 
 class _TrainingRecordListState extends State<TrainingRecordList> {
-  late final TrainingRepository _repository = widget.repositoryOverride ?? repository;
+  late final TrainingRepository _repository =
+      widget.repositoryOverride ?? repository;
   List<TrainingRecord> _records = [];
   bool _isLoading = true;
 
@@ -43,38 +44,43 @@ class _TrainingRecordListState extends State<TrainingRecordList> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _records.isEmpty
-              ? const Center(
-                  child: Text(
-                    '記録がありません',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _records.length,
-                  itemBuilder: (context, index) {
-                    final record = _records[index];
-                    return TrainingRecordCard(
-                      record: record,
-                      onTap: () async {
-                        final dialogResult = await showRecordDetailDialog(context, record);
-                        if (dialogResult == DetailDialogResult.delete) {
-                          _loadRecords();
-                        } else if (dialogResult == DetailDialogResult.edit && context.mounted) {
-                          final formResult = await Navigator.push<bool>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TrainingRecordForm(record: record),
-                            ),
-                          );
-                          if (formResult == true) {
-                            _loadRecords();
-                          }
-                        }
-                      },
+          ? const Center(
+              child: Text(
+                '記録がありません',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _records.length,
+              itemBuilder: (context, index) {
+                final record = _records[index];
+                return TrainingRecordCard(
+                  record: record,
+                  onTap: () async {
+                    final dialogResult = await showRecordDetailDialog(
+                      context,
+                      record,
                     );
+                    if (dialogResult == DetailDialogResult.delete) {
+                      _loadRecords();
+                    } else if (dialogResult == DetailDialogResult.edit &&
+                        context.mounted) {
+                      final formResult = await Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TrainingRecordForm(record: record),
+                        ),
+                      );
+                      if (formResult == true) {
+                        _loadRecords();
+                      }
+                    }
                   },
-                ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.push<bool>(

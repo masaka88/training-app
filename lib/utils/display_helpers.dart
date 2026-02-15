@@ -1,10 +1,7 @@
 /// 改行区切りのアクティビティテキストを「 / 」区切りの1行に変換する。
 /// 空行は除外される。
 String formatActivityDisplay(String activity) {
-  return activity
-      .split('\n')
-      .where((l) => l.trim().isNotEmpty)
-      .join(' / ');
+  return activity.split('\n').where((l) => l.trim().isNotEmpty).join(' / ');
 }
 
 /// コメントを最大[maxLength]文字にプレビュー用に切り詰める。

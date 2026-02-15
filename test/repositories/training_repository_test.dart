@@ -89,11 +89,14 @@ void main() {
 
     test('新しい日付順にソートされる', () async {
       await repository.saveRecord(
-          createRecord(id: 'old', date: DateTime(2024, 1, 1)));
+        createRecord(id: 'old', date: DateTime(2024, 1, 1)),
+      );
       await repository.saveRecord(
-          createRecord(id: 'new', date: DateTime(2024, 3, 1)));
+        createRecord(id: 'new', date: DateTime(2024, 3, 1)),
+      );
       await repository.saveRecord(
-          createRecord(id: 'mid', date: DateTime(2024, 2, 1)));
+        createRecord(id: 'mid', date: DateTime(2024, 2, 1)),
+      );
 
       final records = await repository.getAllRecords();
       expect(records.length, 3);
@@ -104,9 +107,11 @@ void main() {
 
     test('同じ日付のレコードが複数ある場合もエラーにならない', () async {
       await repository.saveRecord(
-          createRecord(id: 'a', date: DateTime(2024, 1, 1)));
+        createRecord(id: 'a', date: DateTime(2024, 1, 1)),
+      );
       await repository.saveRecord(
-          createRecord(id: 'b', date: DateTime(2024, 1, 1)));
+        createRecord(id: 'b', date: DateTime(2024, 1, 1)),
+      );
 
       final records = await repository.getAllRecords();
       expect(records.length, 2);
@@ -115,8 +120,7 @@ void main() {
 
   group('getRecordById', () {
     test('存在するIDでレコードを取得できる', () async {
-      await repository.saveRecord(
-          createRecord(id: 'target', activity: '筋トレ'));
+      await repository.saveRecord(createRecord(id: 'target', activity: '筋トレ'));
 
       final record = await repository.getRecordById('target');
       expect(record, isNotNull);
@@ -163,13 +167,17 @@ void main() {
   group('getRecordsByDateRange', () {
     setUp(() async {
       await repository.saveRecord(
-          createRecord(id: 'jan', date: DateTime(2024, 1, 15)));
+        createRecord(id: 'jan', date: DateTime(2024, 1, 15)),
+      );
       await repository.saveRecord(
-          createRecord(id: 'feb', date: DateTime(2024, 2, 15)));
+        createRecord(id: 'feb', date: DateTime(2024, 2, 15)),
+      );
       await repository.saveRecord(
-          createRecord(id: 'mar', date: DateTime(2024, 3, 15)));
+        createRecord(id: 'mar', date: DateTime(2024, 3, 15)),
+      );
       await repository.saveRecord(
-          createRecord(id: 'apr', date: DateTime(2024, 4, 15)));
+        createRecord(id: 'apr', date: DateTime(2024, 4, 15)),
+      );
     });
 
     test('範囲内のレコードのみ返される', () async {
