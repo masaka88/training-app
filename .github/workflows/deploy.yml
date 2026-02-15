@@ -39,6 +39,9 @@ jobs:
     - name: Analyze project
       run: flutter analyze
 
+    - name: Run tests
+      run: flutter test
+
     - name: Build Flutter web
       run: flutter build web --release --base-href "/training-app/"
 
