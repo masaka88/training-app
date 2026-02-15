@@ -11,9 +11,11 @@ Future<DetailDialogResult?> showRecordDetailDialog(BuildContext context, Trainin
     context: context,
     builder: (context) => Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,6 +135,7 @@ Future<DetailDialogResult?> showRecordDetailDialog(BuildContext context, Trainin
             ],
           ),
         ),
+      ),
       ),
     ),
   );
