@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/training_record.dart';
-import '../repositories/training_repository.dart';
+import '../repositories/repository_provider.dart';
 import 'detail_dialog_result.dart';
 
 /// 戻り値: DetailDialogResult.edit なら編集要求、DetailDialogResult.delete なら削除済み、null はそれ以外
@@ -160,7 +160,7 @@ Future<void> _confirmAndDelete(BuildContext context, TrainingRecord record) asyn
     ),
   );
   if (confirm == true) {
-    await TrainingRepository().deleteRecord(record.id!);
+    await repository.deleteRecord(record.id!);
     if (context.mounted) {
       Navigator.pop(context, DetailDialogResult.delete);
     }

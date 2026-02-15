@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/training_record.dart';
+import '../repositories/repository_provider.dart';
 import '../repositories/training_repository.dart';
 import 'training_record_form.dart';
 import 'training_record_card.dart';
@@ -7,14 +8,16 @@ import 'training_record_detail_dialog.dart';
 import 'detail_dialog_result.dart';
 
 class TrainingRecordList extends StatefulWidget {
-  const TrainingRecordList({super.key});
+  final TrainingRepository? repositoryOverride;
+
+  const TrainingRecordList({super.key, this.repositoryOverride});
 
   @override
   State<TrainingRecordList> createState() => _TrainingRecordListState();
 }
 
 class _TrainingRecordListState extends State<TrainingRecordList> {
-  final _repository = TrainingRepository();
+  late final TrainingRepository _repository = widget.repositoryOverride ?? repository;
   List<TrainingRecord> _records = [];
   bool _isLoading = true;
 
