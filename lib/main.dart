@@ -46,7 +46,9 @@ class MainApp extends StatelessWidget {
             ),
             backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
             foregroundColor: WidgetStateProperty.all(Colors.white),
-            padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16)),
+            padding: WidgetStateProperty.all(
+              const EdgeInsets.symmetric(vertical: 16),
+            ),
             textStyle: WidgetStateProperty.all(
               const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),

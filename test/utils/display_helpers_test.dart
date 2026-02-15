@@ -28,10 +28,7 @@ void main() {
     });
 
     test('3行以上の結合', () {
-      expect(
-        formatActivityDisplay('ランニング\n筋トレ\nストレッチ'),
-        'ランニング / 筋トレ / ストレッチ',
-      );
+      expect(formatActivityDisplay('ランニング\n筋トレ\nストレッチ'), 'ランニング / 筋トレ / ストレッチ');
     });
   });
 

@@ -52,7 +52,6 @@ class TrainingRepository {
     return _box.values.where((record) {
       return record.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
           record.date.isBefore(endDate.add(const Duration(days: 1)));
-    }).toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+    }).toList()..sort((a, b) => b.date.compareTo(a.date));
   }
 }
