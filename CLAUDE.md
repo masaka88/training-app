@@ -57,3 +57,14 @@ devcontainer exec --workspace-folder <プロジェクトルートの絶対パス
 - Project uses standard Flutter project structure
 - Material Design is enabled for UI components
 - Currently supports web and macOS platforms out of the box
+
+## Branch Notes
+
+- `claude/explain-codebase-*` ブランチはコードベース説明・ハンズオン用のセッションブランチであり、開発用ではない。このブランチからPRは作成しないこと。
+
+## Claude Web セッションに関するメモ
+
+- Claude Web（ブラウザ版）の環境はセッションごとにエフェメラル（使い捨て）である
+- セッション中に作成・編集したファイルは、gitにコミット＆プッシュしない限り次のセッションには引き継がれない
+- `~/.claude/CLAUDE.md`（ユーザーレベル）や `.claude/CLAUDE.md`（プロジェクトレベル・gitignore対象）はセッション間で永続化されない
+- セッション間でコンテキストを引き継ぐには、`CLAUDE.md`（プロジェクトルート）にコミットするのが最も確実な方法
