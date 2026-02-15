@@ -35,7 +35,8 @@ devcontainer exec --workspace-folder <プロジェクトルートの絶対パス
 - **Install dependencies**: `flutter pub get`
 - **Run the app (web)**: `flutter run -d web-server --web-port=3000 --web-hostname=0.0.0.0` → ブラウザで http://localhost:3000 にアクセス
 - **Build for release**: `flutter build apk` (Android) or `flutter build ios` (iOS)
-- **Run tests**: `flutter test` (no tests currently exist)
+- **Run tests**: `flutter test`
+- **Run tests (specific file)**: `flutter test test/models/training_record_test.dart`
 - **Analyze code**: `flutter analyze`
 - **Format code**: `dart format .`
 
@@ -51,9 +52,45 @@ devcontainer exec --workspace-folder <プロジェクトルートの絶対パス
 - `analysis_options.yaml`: Includes Flutter linting rules from `package:flutter_lints/flutter.yaml`
 - `lib/main.dart`: Single-file app with `MainApp` StatelessWidget
 
+## Testing
+
+テストフレームワーク: `flutter_test` + `mocktail`（コード生成不要のモックライブラリ）
+
+### テスト構成
+
+```
+test/
+├── models/
+│   └── training_record_test.dart      # Model Unit Test
+├── repositories/
+│   └── training_repository_test.dart  # Repository Unit Test (Real Hive + tempDir)
+├── utils/
+│   └── display_helpers_test.dart      # ロジック関数 Unit Test
+└── screens/
+    └── training_record_list_test.dart # Widget Test (mocktail)
+```
+
+### テスト実行
+
+```bash
+# 全テスト実行
+flutter test
+
+# 特定ファイルのみ
+flutter test test/models/training_record_test.dart
+
+# 特定グループのみ（--plain-name で部分一致）
+flutter test --plain-name 'toSlackMessage'
+```
+
+### テスト作成時の注意
+
+- **Widget Test**: `pumpAndSettle` ではなく `pump` を使う（Hive非同期操作でハングする）
+- **Widget Test**: 未解決のFutureには `Completer` を使う（`Future.delayed` はタイマーエラーになる）
+- **Repository Test**: `setUp` で `Hive.init(tempDir)` + Adapter登録、`tearDown` で `box.close()` + `Hive.close()` + tempDir削除
+
 ## Development Notes
 
-- No test directory currently exists - tests should be created in `test/` directory
 - Project uses standard Flutter project structure
 - Material Design is enabled for UI components
 - Currently supports web and macOS platforms out of the box
