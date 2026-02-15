@@ -89,6 +89,10 @@ flutter test --plain-name 'toSlackMessage'
 - **Widget Test**: 未解決のFutureには `Completer` を使う（`Future.delayed` はタイマーエラーになる）
 - **Repository Test**: `setUp` で `Hive.init(tempDir)` + Adapter登録、`tearDown` で `box.close()` + `Hive.close()` + tempDir削除
 
+## Code Formatting
+
+Dartコードは最初から `dart format` 準拠のスタイルで書くこと。後から `dart format` を実行してフォーマット差分が発生しないようにする。これにより、差分にはロジック変更のみが含まれ、レビューしやすくなる。
+
 ## Development Notes
 
 - Project uses standard Flutter project structure
