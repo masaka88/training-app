@@ -93,6 +93,12 @@ flutter test --plain-name 'toSlackMessage'
 
 Dartコードは最初から `dart format` 準拠のスタイルで書くこと。後から `dart format` を実行してフォーマット差分が発生しないようにする。これにより、差分にはロジック変更のみが含まれ、レビューしやすくなる。
 
+## Git Workflow
+
+- コミットは論理単位で分割する（設定変更、コード変更、フォーマット、CI、ドキュメントは別コミット）
+- テストは対応する実装と同じコミットにまとめてよい
+- Conventional Commits形式でメッセージを記述する
+
 ## Development Notes
 
 - Project uses standard Flutter project structure
