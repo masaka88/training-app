@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/training_record.dart';
 import '../repositories/repository_provider.dart';
 import '../repositories/training_repository.dart';
+import 'storage_status_screen.dart';
 import 'training_record_form.dart';
 import 'training_record_card.dart';
 import 'training_record_detail_dialog.dart';
@@ -40,7 +41,23 @@ class _TrainingRecordListState extends State<TrainingRecordList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('トレーニング記録')),
+      appBar: AppBar(
+        title: const Text('トレーニング記録'),
+        actions: [
+          IconButton(
+            tooltip: 'ストレージの状態',
+            icon: const Icon(Icons.shield_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StorageStatusScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _records.isEmpty
