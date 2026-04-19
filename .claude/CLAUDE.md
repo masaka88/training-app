@@ -1,106 +1,34 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Project Overview
-
-This is a Flutter mobile application project named `training_app`. It's a minimal Flutter project initialized with a basic "Hello World" app structure.
+Claude Code 向けのプロジェクト固有ルール。一般的な Flutter/Dart の知識や `pubspec.yaml`・ディレクトリ構造から読み取れる事項は記載しない。
 
 ## Communication Language
 
-When communicating with users, respond in Japanese.
+ユーザーへの応答は日本語で行う。
 
-## Architecture and Structure
+## Development Environment
 
-- **Framework**: Flutter 3.9.0+ with Dart
-- **Main Entry Point**: `lib/main.dart` - Contains the main app with a simple MaterialApp showing "Hello World"
-- **Dependencies**: Uses Material Design components (`uses-material-design: true`)
-- **Linting**: Uses `flutter_lints` package with standard Flutter linting rules
-- **Platforms**: Supports web and macOS (evidenced by `/web` and `/macos` directories)
-
-## Development Commands
-
-Flutter/Dartコマンドはdevcontainer内で実行すること。ローカルホストからは以下のプレフィックスを付けて実行する：
+Flutter/Dart コマンドは devcontainer 内で実行する。ローカルホストから実行する場合は以下のプレフィックスを付ける：
 
 ```
 devcontainer exec --workspace-folder <プロジェクトルートの絶対パス> <command>
 ```
 
-例：
-- `devcontainer exec --workspace-folder <プロジェクトルートの絶対パス> flutter pub get`
-- `devcontainer exec --workspace-folder <プロジェクトルートの絶対パス> flutter run -d web-server --web-port=3000 --web-hostname=0.0.0.0`
-
-### Essential Commands
-
-- **Install dependencies**: `flutter pub get`
-- **Run the app (web)**: `flutter run -d web-server --web-port=3000 --web-hostname=0.0.0.0` → ブラウザで http://localhost:3000 にアクセス
-- **Build for release**: `flutter build apk` (Android) or `flutter build ios` (iOS)
-- **Run tests**: `flutter test`
-- **Run tests (specific file)**: `flutter test test/models/training_record_test.dart`
-- **Analyze code**: `flutter analyze`
-- **Format code**: `dart format .`
-
-### Development Workflow
-
-- **Hot reload**: Available when running `flutter run` in debug mode
-- **Clean build cache**: `flutter clean` then `flutter pub get`
-- **Generate platform-specific code**: `flutter create --platforms android,ios .` (if needed)
-
-## Configuration Files
-
-- `pubspec.yaml`: Project configuration and dependencies
-- `analysis_options.yaml`: Includes Flutter linting rules from `package:flutter_lints/flutter.yaml`
-- `lib/main.dart`: Single-file app with `MainApp` StatelessWidget
+Web 起動時は `flutter run -d web-server --web-port=3000 --web-hostname=0.0.0.0` を使い、ブラウザで `http://localhost:3000` にアクセスする。
 
 ## Testing
 
-テストフレームワーク: `flutter_test` + `mocktail`（コード生成不要のモックライブラリ）
-
-### テスト構成
-
-```
-test/
-├── models/
-│   └── training_record_test.dart      # Model Unit Test
-├── repositories/
-│   └── training_repository_test.dart  # Repository Unit Test (Real Hive + tempDir)
-├── utils/
-│   └── display_helpers_test.dart      # ロジック関数 Unit Test
-└── screens/
-    └── training_record_list_test.dart # Widget Test (mocktail)
-```
-
-### テスト実行
-
-```bash
-# 全テスト実行
-flutter test
-
-# 特定ファイルのみ
-flutter test test/models/training_record_test.dart
-
-# 特定グループのみ（--plain-name で部分一致）
-flutter test --plain-name 'toSlackMessage'
-```
-
-### テスト作成時の注意
-
-- **Widget Test**: `pumpAndSettle` ではなく `pump` を使う（Hive非同期操作でハングする）
-- **Widget Test**: 未解決のFutureには `Completer` を使う（`Future.delayed` はタイマーエラーになる）
-- **Repository Test**: `setUp` で `Hive.init(tempDir)` + Adapter登録、`tearDown` で `box.close()` + `Hive.close()` + tempDir削除
+- フレームワーク: `flutter_test` + `mocktail`（コード生成不要）
+- **Widget Test**: `pumpAndSettle` ではなく `pump` を使う（Hive の非同期操作でハングするため）
+- **Widget Test**: 未解決の Future には `Completer` を使う（`Future.delayed` はタイマーエラーになる）
+- **Repository Test**: `setUp` で `Hive.init(tempDir)` + Adapter 登録、`tearDown` で `box.close()` → `Hive.close()` → tempDir 削除
 
 ## Code Formatting
 
-Dartコードは最初から `dart format` 準拠のスタイルで書くこと。後から `dart format` を実行してフォーマット差分が発生しないようにする。これにより、差分にはロジック変更のみが含まれ、レビューしやすくなる。
+Dart コードは最初から `dart format` 準拠のスタイルで書く。後から `dart format` を実行してフォーマット差分が発生しないようにし、差分にはロジック変更のみが含まれるようにする。
 
 ## Git Workflow
 
 - コミットは論理単位で分割する（設定変更、コード変更、フォーマット、CI、ドキュメントは別コミット）
 - テストは対応する実装と同じコミットにまとめてよい
-- Conventional Commits形式でメッセージを記述する
-
-## Development Notes
-
-- Project uses standard Flutter project structure
-- Material Design is enabled for UI components
-- Currently supports web and macOS platforms out of the box
+- Conventional Commits 形式でメッセージを記述する
