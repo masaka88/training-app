@@ -4,6 +4,7 @@ import 'models/training_record.dart';
 import 'repositories/repository_provider.dart';
 import 'repositories/training_repository.dart';
 import 'screens/training_record_list.dart';
+import 'utils/storage_persistence_prompt.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,10 @@ void main() async {
   // Repositoryの初期化
   final box = await Hive.openBox<TrainingRecord>('training_records');
   repository = TrainingRepository(box);
+
+  // 永続ストレージ確認プロンプトの初期化
+  final settingsBox = await Hive.openBox<bool>('app_settings');
+  storagePersistencePrompt = StoragePersistencePrompt(settingsBox);
 
   runApp(const MainApp());
 }

@@ -65,6 +65,12 @@ class _TrainingRecordFormState extends State<TrainingRecordForm> {
 
         await _repository.saveRecord(record);
 
+        // 保存直後は「守りたいデータが出来た瞬間」かつユーザー操作の直後なので、
+        // 永続ストレージ要求を出すのに適したタイミング。
+        if (mounted) {
+          await storagePersistencePrompt.maybePrompt(context);
+        }
+
         if (mounted) {
           FocusScope.of(context).unfocus();
           ScaffoldMessenger.of(context).showSnackBar(
