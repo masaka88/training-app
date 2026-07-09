@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:training_app/models/training_record.dart';
-import 'package:training_app/repositories/training_repository.dart';
+import 'package:training_app/repositories/hive_training_repository.dart';
 
 void main() {
   late Directory tempDir;
   late Box<TrainingRecord> box;
-  late TrainingRepository repository;
+  late HiveTrainingRepository repository;
 
   setUp(() async {
     tempDir = await Directory.systemTemp.createTemp('hive_test_');
@@ -17,7 +17,7 @@ void main() {
       Hive.registerAdapter(TrainingRecordAdapter());
     }
     box = await Hive.openBox<TrainingRecord>('test_box');
-    repository = TrainingRepository(box);
+    repository = HiveTrainingRepository(box);
   });
 
   tearDown(() async {
