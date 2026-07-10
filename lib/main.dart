@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'config/supabase_config.dart';
 import 'models/training_record.dart';
 import 'repositories/hive_training_repository.dart';
 import 'repositories/repository_provider.dart';
-import 'screens/training_record_list.dart';
+import 'screens/auth_gate.dart';
+import 'services/auth_provider.dart';
+import 'services/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Supabaseの初期化（セッションは自動で永続化・復元される）
+  await Supabase.initialize(
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
+  );
+  authService = SupabaseAuthService(Supabase.instance.client.auth);
 
   // Hiveの初期化
   await Hive.initFlutter();
@@ -55,7 +66,7 @@ class MainApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const TrainingRecordList(),
+      home: const AuthGate(),
     );
   }
 }

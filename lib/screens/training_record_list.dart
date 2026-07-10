@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/training_record.dart';
 import '../repositories/repository_provider.dart';
 import '../repositories/training_repository.dart';
+import '../services/auth_provider.dart';
+import '../services/auth_service.dart';
 import 'training_record_form.dart';
 import 'training_record_card.dart';
 import 'training_record_detail_dialog.dart';
@@ -9,8 +11,13 @@ import 'detail_dialog_result.dart';
 
 class TrainingRecordList extends StatefulWidget {
   final TrainingRepository? repositoryOverride;
+  final AuthService? authServiceOverride;
 
-  const TrainingRecordList({super.key, this.repositoryOverride});
+  const TrainingRecordList({
+    super.key,
+    this.repositoryOverride,
+    this.authServiceOverride,
+  });
 
   @override
   State<TrainingRecordList> createState() => _TrainingRecordListState();
@@ -40,7 +47,20 @@ class _TrainingRecordListState extends State<TrainingRecordList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('トレーニング記録')),
+      appBar: AppBar(
+        title: const Text('トレーニング記録'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'ログアウト',
+            onPressed: () async {
+              final auth = widget.authServiceOverride ?? authService;
+              await auth.signOut();
+              // ログアウト後の画面遷移はAuthGateがログイン状態の変化を検知して行う
+            },
+          ),
+        ],
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _records.isEmpty
