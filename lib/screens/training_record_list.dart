@@ -34,6 +34,7 @@ class _TrainingRecordListState extends State<TrainingRecordList> {
       widget.migratorOverride ?? localDataMigrator;
   List<TrainingRecord> _records = [];
   bool _isLoading = true;
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -71,25 +72,54 @@ class _TrainingRecordListState extends State<TrainingRecordList> {
     if (confirmed != true) {
       return;
     }
-    final migrated = await migrator.migrate();
-    if (mounted) {
+    try {
+      final migrated = await migrator.migrate();
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('$migrated件の記録を移行しました'),
           backgroundColor: Colors.green,
         ),
       );
+      _loadRecords();
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('移行に失敗しました。次回起動時に再試行できます。'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-    _loadRecords();
   }
 
   Future<void> _loadRecords() async {
-    setState(() => _isLoading = true);
-    final records = await _repository.getAllRecords();
     setState(() {
-      _records = records;
-      _isLoading = false;
+      _isLoading = true;
+      _hasError = false;
     });
+    try {
+      final records = await _repository.getAllRecords();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _records = records;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+      });
+    }
   }
 
   @override
@@ -111,6 +141,23 @@ class _TrainingRecordListState extends State<TrainingRecordList> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
+          : _hasError
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    '記録の読み込みに失敗しました',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: _loadRecords,
+                    child: const Text('再試行'),
+                  ),
+                ],
+              ),
+            )
           : _records.isEmpty
           ? const Center(
               child: Text(

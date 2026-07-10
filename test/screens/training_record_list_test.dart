@@ -187,5 +187,64 @@ void main() {
 
       expect(find.text('データ移行'), findsNothing);
     });
+
+    testWidgets('移行に失敗した場合はエラーメッセージが表示される', (tester) async {
+      when(() => mockMigrator.shouldMigrate()).thenAnswer((_) async => true);
+      when(() => mockMigrator.localCount).thenReturn(3);
+      when(() => mockMigrator.migrate()).thenThrow(Exception('network error'));
+
+      await tester.pumpWidget(buildTestWidget(migrator: mockMigrator));
+      await tester.pump();
+      await tester.pump();
+
+      await tester.tap(find.text('移行する'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('移行に失敗しました。次回起動時に再試行できます。'), findsOneWidget);
+    });
+  });
+
+  group('読み込みエラー', () {
+    testWidgets('読み込みに失敗するとエラーメッセージと再試行ボタンが表示される', (tester) async {
+      when(
+        () => mockRepository.getAllRecords(),
+      ).thenThrow(Exception('network error'));
+
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
+
+      expect(find.text('記録の読み込みに失敗しました'), findsOneWidget);
+      expect(find.text('再試行'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    });
+
+    testWidgets('再試行ボタンで読み込みが成功するとリストが表示される', (tester) async {
+      when(
+        () => mockRepository.getAllRecords(),
+      ).thenThrow(Exception('network error'));
+
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
+      expect(find.text('記録の読み込みに失敗しました'), findsOneWidget);
+
+      when(() => mockRepository.getAllRecords()).thenAnswer(
+        (_) async => [
+          TrainingRecord(
+            id: 'test-1',
+            date: DateTime(2024, 3, 5),
+            activity: 'ランニング',
+            duration: '30分',
+            monthlyCount: 5,
+          ),
+        ],
+      );
+      await tester.tap(find.text('再試行'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('記録の読み込みに失敗しました'), findsNothing);
+      expect(find.textContaining('ランニング'), findsOneWidget);
+    });
   });
 }

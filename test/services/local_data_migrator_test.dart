@@ -49,9 +49,17 @@ void main() {
       verifyNever(() => mockApi.count());
     });
 
-    test('リモートに記録がある場合はfalse', () async {
+    test('リモートがローカル以上の場合はfalse', () async {
       await box.put('a', createRecord(id: 'a'));
       when(() => mockApi.count()).thenAnswer((_) async => 3);
+
+      expect(await migrator.shouldMigrate(), isFalse);
+    });
+
+    test('リモートとローカルが同数の場合はfalse（移行完了後の再プロンプト防止）', () async {
+      await box.put('a', createRecord(id: 'a'));
+      await box.put('b', createRecord(id: 'b'));
+      when(() => mockApi.count()).thenAnswer((_) async => 2);
 
       expect(await migrator.shouldMigrate(), isFalse);
     });
@@ -59,6 +67,14 @@ void main() {
     test('ローカルに記録がありリモートが空の場合はtrue', () async {
       await box.put('a', createRecord(id: 'a'));
       when(() => mockApi.count()).thenAnswer((_) async => 0);
+
+      expect(await migrator.shouldMigrate(), isTrue);
+    });
+
+    test('リモートがローカルより少ない場合はtrue（部分失敗後の再開）', () async {
+      await box.put('a', createRecord(id: 'a'));
+      await box.put('b', createRecord(id: 'b'));
+      when(() => mockApi.count()).thenAnswer((_) async => 1);
 
       expect(await migrator.shouldMigrate(), isTrue);
     });
