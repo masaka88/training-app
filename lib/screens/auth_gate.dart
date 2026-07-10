@@ -21,7 +21,7 @@ class AuthGate extends StatelessWidget {
         if (!isSignedIn) {
           return LoginScreen(authServiceOverride: authServiceOverride);
         }
-        return const TrainingRecordList();
+        return TrainingRecordList(authServiceOverride: authServiceOverride);
       },
     );
   }

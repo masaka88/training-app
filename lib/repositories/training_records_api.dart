@@ -1,17 +1,17 @@
 /// training_recordsテーブルへの行単位のアクセスAPI。
 ///
 /// Supabaseクライアントのクエリビルダはメソッドチェーンで構成されるため
-/// モックが難しい。そこで「行 = Map&lt;String, dynamic&gt;」を境界とする
+/// モックが難しい。そこで「行 = `Map<String, dynamic>`」を境界とする
 /// このインターフェースを挟み、リポジトリ層をテスト可能にする。
 /// 日付は 'yyyy-MM-dd' 形式の文字列で受け渡す。
 abstract interface class TrainingRecordsApi {
-  /// 全行を日付の新しい順で取得
+  /// 全行を日付の新しい順（同日中は作成日時の新しい順）で取得
   Future<List<Map<String, dynamic>>> fetchAllOrderedByDateDesc();
 
   /// IDで1行取得（存在しなければnull）
   Future<Map<String, dynamic>?> fetchById(String id);
 
-  /// 日付範囲（両端含む）の行を日付の新しい順で取得
+  /// 日付範囲（両端含む）の行を日付の新しい順（同日中は作成日時の新しい順）で取得
   Future<List<Map<String, dynamic>>> fetchByDateRange(
     String startDate,
     String endDate,

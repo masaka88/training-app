@@ -14,7 +14,11 @@ class SupabaseTrainingRecordsApi implements TrainingRecordsApi {
 
   @override
   Future<List<Map<String, dynamic>>> fetchAllOrderedByDateDesc() async {
-    return _client.from(_table).select().order('date', ascending: false);
+    return _client
+        .from(_table)
+        .select()
+        .order('date', ascending: false)
+        .order('created_at', ascending: false);
   }
 
   @override
@@ -32,7 +36,8 @@ class SupabaseTrainingRecordsApi implements TrainingRecordsApi {
         .select()
         .gte('date', startDate)
         .lte('date', endDate)
-        .order('date', ascending: false);
+        .order('date', ascending: false)
+        .order('created_at', ascending: false);
   }
 
   @override
