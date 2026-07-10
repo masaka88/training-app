@@ -98,6 +98,55 @@ class TrainingRecord {
     );
   }
 
+  /// Supabaseのtraining_recordsテーブル行（snake_case）に変換。
+  ///
+  /// dateはタイムゾーンによる日付ずれを防ぐため 'yyyy-MM-dd' 文字列として
+  /// date型カラムに保存する。user_idはDB側のデフォルト（auth.uid()）に任せる。
+  Map<String, dynamic> toSupabaseJson() {
+    return {
+      'id': id,
+      'date': formatDateOnly(date),
+      'activity': activity,
+      'duration': duration,
+      'comment': comment,
+      'location': location,
+      'monthly_count': monthlyCount,
+      'created_at': createdAt.toUtc().toIso8601String(),
+    };
+  }
+
+  /// Supabaseのtraining_recordsテーブル行（snake_case）から生成
+  factory TrainingRecord.fromSupabaseJson(Map<String, dynamic> json) {
+    return TrainingRecord(
+      id: json['id'] as String?,
+      date: _parseDateOnly(json['date'] as String),
+      activity: json['activity'] as String,
+      duration: json['duration'] as String,
+      comment: json['comment'] as String?,
+      location: json['location'] as String?,
+      monthlyCount: json['monthly_count'] as int,
+      createdAt: DateTime.parse(json['created_at'] as String).toLocal(),
+    );
+  }
+
+  /// ローカル日付を 'yyyy-MM-dd' に変換（UTC変換を経由しない）
+  static String formatDateOnly(DateTime date) {
+    final y = date.year.toString().padLeft(4, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final d = date.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
+  }
+
+  /// 'yyyy-MM-dd' をローカル日付として解釈
+  static DateTime _parseDateOnly(String value) {
+    final parts = value.split('-');
+    return DateTime(
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+      int.parse(parts[2]),
+    );
+  }
+
   /// コピーを作成（一部のプロパティを変更）
   TrainingRecord copyWith({
     String? id,

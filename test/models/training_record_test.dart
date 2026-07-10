@@ -86,6 +86,84 @@ void main() {
       });
     });
 
+    group('toSupabaseJson / fromSupabaseJson', () {
+      test('snake_caseのキーで出力される', () {
+        final json = record.toSupabaseJson();
+
+        expect(json['id'], 'test-id-123');
+        expect(json['activity'], 'ランニング');
+        expect(json['duration'], '30分');
+        expect(json['comment'], 'いい天気だった');
+        expect(json['location'], '公園');
+        expect(json['monthly_count'], 5);
+        expect(json['created_at'], isA<String>());
+      });
+
+      test('dateはyyyy-MM-dd形式の文字列になる', () {
+        final json = record.toSupabaseJson();
+        expect(json['date'], '2024-03-05');
+      });
+
+      test('user_idを含まない（DB側のデフォルトに任せる）', () {
+        final json = record.toSupabaseJson();
+        expect(json.keys, isNot(contains('user_id')));
+      });
+
+      test('ラウンドトリップで全フィールドが保持される', () {
+        final restored = TrainingRecord.fromSupabaseJson(
+          record.toSupabaseJson(),
+        );
+
+        expect(restored.id, record.id);
+        expect(restored.date, DateTime(2024, 3, 5));
+        expect(restored.activity, record.activity);
+        expect(restored.duration, record.duration);
+        expect(restored.comment, record.comment);
+        expect(restored.location, record.location);
+        expect(restored.monthlyCount, record.monthlyCount);
+        expect(restored.createdAt, record.createdAt);
+      });
+
+      test('dateはタイムゾーン変換を経由せずローカル日付として往復する', () {
+        // toUtc()経由だとJSTの深夜帯で日付がずれるため、日付文字列で往復する
+        final r = record.copyWith(date: DateTime(2024, 3, 5, 0, 30));
+        final restored = TrainingRecord.fromSupabaseJson(r.toSupabaseJson());
+        expect(restored.date, DateTime(2024, 3, 5));
+      });
+
+      test('nullableフィールドがnullでもラウンドトリップできる', () {
+        final r = TrainingRecord(
+          id: 'null-fields',
+          date: DateTime(2024, 1, 1),
+          activity: 'テスト',
+          duration: '10分',
+          comment: null,
+          location: null,
+          monthlyCount: 1,
+        );
+        final restored = TrainingRecord.fromSupabaseJson(r.toSupabaseJson());
+
+        expect(restored.comment, isNull);
+        expect(restored.location, isNull);
+      });
+    });
+
+    group('formatDateOnly', () {
+      test('1桁の月日はゼロパディングされる', () {
+        expect(
+          TrainingRecord.formatDateOnly(DateTime(2024, 1, 5)),
+          '2024-01-05',
+        );
+      });
+
+      test('2桁の月日はそのまま', () {
+        expect(
+          TrainingRecord.formatDateOnly(DateTime(2024, 12, 25)),
+          '2024-12-25',
+        );
+      });
+    });
+
     group('copyWith', () {
       test('指定したフィールドだけ変更される', () {
         final copied = record.copyWith(activity: '水泳', monthlyCount: 10);
