@@ -4,6 +4,8 @@ import '../repositories/repository_provider.dart';
 import '../repositories/training_repository.dart';
 import '../services/auth_provider.dart';
 import '../services/auth_service.dart';
+import '../services/local_data_migrator.dart';
+import '../services/migrator_provider.dart';
 import 'training_record_form.dart';
 import 'training_record_card.dart';
 import 'training_record_detail_dialog.dart';
@@ -12,11 +14,13 @@ import 'detail_dialog_result.dart';
 class TrainingRecordList extends StatefulWidget {
   final TrainingRepository? repositoryOverride;
   final AuthService? authServiceOverride;
+  final LocalDataMigrator? migratorOverride;
 
   const TrainingRecordList({
     super.key,
     this.repositoryOverride,
     this.authServiceOverride,
+    this.migratorOverride,
   });
 
   @override
@@ -26,12 +30,56 @@ class TrainingRecordList extends StatefulWidget {
 class _TrainingRecordListState extends State<TrainingRecordList> {
   late final TrainingRepository _repository =
       widget.repositoryOverride ?? repository;
+  late final LocalDataMigrator? _migrator =
+      widget.migratorOverride ?? localDataMigrator;
   List<TrainingRecord> _records = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _loadRecords();
+    _maybeMigrateLocalData();
+  }
+
+  /// ローカルHiveに未移行の記録が残っていれば、確認のうえSupabaseへ移行する
+  Future<void> _maybeMigrateLocalData() async {
+    final migrator = _migrator;
+    if (migrator == null || !await migrator.shouldMigrate()) {
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('データ移行'),
+        content: Text('この端末に保存されている${migrator.localCount}件の記録をサーバーへ移行しますか？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('あとで'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('移行する'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) {
+      return;
+    }
+    final migrated = await migrator.migrate();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$migrated件の記録を移行しました'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
     _loadRecords();
   }
 

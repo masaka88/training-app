@@ -6,8 +6,11 @@ import 'package:mocktail/mocktail.dart';
 import 'package:training_app/models/training_record.dart';
 import 'package:training_app/repositories/training_repository.dart';
 import 'package:training_app/screens/training_record_list.dart';
+import 'package:training_app/services/local_data_migrator.dart';
 
 class MockTrainingRepository extends Mock implements TrainingRepository {}
+
+class MockLocalDataMigrator extends Mock implements LocalDataMigrator {}
 
 void main() {
   late MockTrainingRepository mockRepository;
@@ -16,9 +19,12 @@ void main() {
     mockRepository = MockTrainingRepository();
   });
 
-  Widget buildTestWidget() {
+  Widget buildTestWidget({LocalDataMigrator? migrator}) {
     return MaterialApp(
-      home: TrainingRecordList(repositoryOverride: mockRepository),
+      home: TrainingRecordList(
+        repositoryOverride: mockRepository,
+        migratorOverride: migrator,
+      ),
     );
   }
 
@@ -117,6 +123,69 @@ void main() {
       await tester.pump();
 
       expect(find.text('トレーニング記録'), findsOneWidget);
+    });
+  });
+
+  group('データ移行ダイアログ', () {
+    late MockLocalDataMigrator mockMigrator;
+
+    setUp(() {
+      mockMigrator = MockLocalDataMigrator();
+      when(() => mockRepository.getAllRecords()).thenAnswer((_) async => []);
+    });
+
+    testWidgets('移行が必要な場合は確認ダイアログが表示される', (tester) async {
+      when(() => mockMigrator.shouldMigrate()).thenAnswer((_) async => true);
+      when(() => mockMigrator.localCount).thenReturn(3);
+
+      await tester.pumpWidget(buildTestWidget(migrator: mockMigrator));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('データ移行'), findsOneWidget);
+      expect(find.text('この端末に保存されている3件の記録をサーバーへ移行しますか？'), findsOneWidget);
+    });
+
+    testWidgets('「移行する」を選ぶとmigrateが呼ばれ完了メッセージが出る', (tester) async {
+      when(() => mockMigrator.shouldMigrate()).thenAnswer((_) async => true);
+      when(() => mockMigrator.localCount).thenReturn(3);
+      when(() => mockMigrator.migrate()).thenAnswer((_) async => 3);
+
+      await tester.pumpWidget(buildTestWidget(migrator: mockMigrator));
+      await tester.pump();
+      await tester.pump();
+
+      await tester.tap(find.text('移行する'));
+      await tester.pump();
+      await tester.pump();
+
+      verify(() => mockMigrator.migrate()).called(1);
+      expect(find.text('3件の記録を移行しました'), findsOneWidget);
+    });
+
+    testWidgets('「あとで」を選ぶとmigrateは呼ばれない', (tester) async {
+      when(() => mockMigrator.shouldMigrate()).thenAnswer((_) async => true);
+      when(() => mockMigrator.localCount).thenReturn(3);
+
+      await tester.pumpWidget(buildTestWidget(migrator: mockMigrator));
+      await tester.pump();
+      await tester.pump();
+
+      await tester.tap(find.text('あとで'));
+      await tester.pump();
+
+      verifyNever(() => mockMigrator.migrate());
+      expect(find.text('データ移行'), findsNothing);
+    });
+
+    testWidgets('移行が不要な場合はダイアログが表示されない', (tester) async {
+      when(() => mockMigrator.shouldMigrate()).thenAnswer((_) async => false);
+
+      await tester.pumpWidget(buildTestWidget(migrator: mockMigrator));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('データ移行'), findsNothing);
     });
   });
 }
