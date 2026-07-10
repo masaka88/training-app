@@ -46,7 +46,10 @@ jobs:
       run: flutter test
 
     - name: Build Flutter web
-      run: flutter build web --release --base-href "/training-app/"
+      run: >
+        flutter build web --release --base-href "/training-app/"
+        --dart-define=SUPABASE_URL=${{ vars.SUPABASE_URL }}
+        --dart-define=SUPABASE_PUBLISHABLE_KEY=${{ vars.SUPABASE_PUBLISHABLE_KEY }}
 
     - name: Setup Pages
       uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
