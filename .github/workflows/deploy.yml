@@ -43,6 +43,9 @@ jobs:
       run: flutter analyze
 
     - name: Run tests
+      # 日付まわりのタイムゾーン退行はUTCでは検出できないため、JSTで実行する
+      env:
+        TZ: Asia/Tokyo
       run: flutter test
 
     - name: Build Flutter web
