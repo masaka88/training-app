@@ -8,7 +8,7 @@
 1. [Supabase](https://supabase.com/) にサインアップし、新規プロジェクトを作成する
    - プラン: Free
    - リージョン: Northeast Asia (Tokyo) 推奨
-2. プロジェクトの `Project URL` と `anon (public) key` を控える（Settings → API）
+2. プロジェクトの `Project URL` と `Publishable key` を控える（Settings → API Keys）
 
 ## 2. 認証設定（単一ユーザー運用）
 
@@ -38,9 +38,9 @@ GitHub Pages へのデプロイビルドに Supabase の接続情報を注入す
 | Name | Value |
 | ------------------- | ---------------------------- |
 | `SUPABASE_URL` | プロジェクトの Project URL |
-| `SUPABASE_ANON_KEY` | プロジェクトの anon key |
+| `SUPABASE_PUBLISHABLE_KEY` | プロジェクトの Publishable key |
 
-anon key は RLS（Row Level Security）を前提とした公開可能なキーのため、
+Publishable key は RLS（Row Level Security）を前提とした公開可能なキーのため、
 Secrets ではなく Variables で管理してよい。
 
 ## 5. ローカル開発時の起動
@@ -50,7 +50,7 @@ Secrets ではなく Variables で管理してよい。
 ```sh
 flutter run -d web-server --web-port=3000 --web-hostname=0.0.0.0 \
   --dart-define=SUPABASE_URL=<Project URL> \
-  --dart-define=SUPABASE_ANON_KEY=<anon key>
+  --dart-define=SUPABASE_PUBLISHABLE_KEY=<Publishable key>
 ```
 
 ## 補足: 無料プランの一時停止対策
