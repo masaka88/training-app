@@ -1,0 +1,3 @@
+# Supabase CLI の設定。`supabase link --project-ref <ref>` でリモートプロジェクトと
+# 紐付けたうえで `supabase db push` により migrations を適用する。
+project_id = "training-app"

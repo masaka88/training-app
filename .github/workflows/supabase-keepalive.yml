@@ -1,0 +1,27 @@
+# Supabase Freeプランは約1週間データベースへのアクティビティがないと
+# プロジェクトが一時停止されるため、週2回RESTへアクセスして停止を防ぐ。
+# 詳細は supabase/README.md を参照。
+name: Supabase keep-alive
+
+on:
+  schedule:
+    # 週2回（水・土 6:00 JST）。週1だと1週間の停止閾値と際どいため余裕を持たせる
+    - cron: '0 21 * * 2,5'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Ping Supabase REST API
+      env:
+        SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+        SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+      # RLSにより匿名アクセスの結果は空配列だが、DBアクティビティとしては十分
+      run: |
+        curl --silent --fail --show-error \
+          "${SUPABASE_URL}/rest/v1/training_records?select=id&limit=1" \
+          -H "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
+          -H "Authorization: Bearer ${SUPABASE_PUBLISHABLE_KEY}" \
+          > /dev/null

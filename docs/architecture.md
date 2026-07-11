@@ -2,23 +2,20 @@
 
 ## 1. 概要 (Overview)
 
-**この資料に書かれた内容は設計段階のもので実装されていません。**
-
 このアプリケーションは、トレーニングの記録を行い運動習慣化を促進することを目的とした Web アプリケーションです。
 
 日々のトレーニングを手軽に記録し、Slack と連携することでトレーニングの記録がコミュニティで共有され、モチベーションの向上を目指します。
 
-## 2. アーキテクチャ (Architecture)
+この資料は「実装済みアーキテクチャ」と「将来構想（未実装）」の 2 部構成です。
 
-本システムは、フロントエンドとバックエンドを明確に分離したモダンな Jamstack 構成を採用しています。
+## 2. 実装済みアーキテクチャ (Current Architecture)
 
-コード スニペット
+フロントエンド（Flutter Web / GitHub Pages）とバックエンド（Supabase）を分離した構成を採用しています。
 
 ```mermaid
 graph TD
     subgraph User Interaction
         A[ユーザー] --> B{ブラウザ};
-        SL[Slackユーザー] --> C{Slack};
     end
 
     subgraph Frontend
@@ -26,82 +23,47 @@ graph TD
     end
 
     subgraph Backend on Supabase
-        E[Edge Functions];
         F[Postgres Database];
         G[Auth];
     end
 
-    D -- "APIリクエスト (記録の保存/取得)" --> E;
-    C -- "投稿イベント (Webhook)" --> E;
-    E -- "データ読み書き" --> F;
-    E -- "ユーザー認証" --> G;
-    E -- "ランク計算 (スケジュール実行)" --> F;
+    D -- "記録の保存/取得 (supabase_flutter)" --> F;
+    D -- "email+password ログイン" --> G;
+
+    subgraph GitHub Actions
+        H[deploy.yml];
+        I[supabase-keepalive.yml];
+    end
+
+    H -- "ビルド & デプロイ" --> D;
+    I -- "定期ping (一時停止防止)" --> F;
 ```
 
-## 3. 技術スタック (Technology Stack)
+### Frontend (Flutter Web / GitHub Pages)
 
-### フロントエンド
-
-| 用途              | 技術             | 備考                                         |
-| ----------------- | ---------------- | -------------------------------------------- |
-| UI フレームワーク | **Flutter Web**  | iOS/Android アプリへの将来的な拡張性も考慮。 |
-| ホスティング      | **GitHub Pages** | 静的サイトを無料で高速に配信。               |
-
-### バックエンド
-
-| 用途             | 技術                        | 備考                                             |
-| ---------------- | --------------------------- | ------------------------------------------------ |
-| プラットフォーム | **Supabase**                | バックエンド機能全般を提供。                     |
-| データベース     | **PostgreSQL**              | Supabase のコア。信頼性の高いリレーショナル DB。 |
-| 認証             | **Supabase Auth**           | Slack アカウントを利用した OAuth 認証。          |
-| サーバーレス関数 | **Supabase Edge Functions** | ビジネスロジックの実行環境。                     |
-
-### その他
-
-| 用途             | 技術               | 備考                                                 |
-| ---------------- | ------------------ | ---------------------------------------------------- |
-| ソースコード管理 | **GitHub**         |                                                      |
-| CI/CD            | **GitHub Actions** | `main`ブランチへのプッシュをトリガーに自動デプロイ。 |
-| 連携サービス     | **Slack**          | 活動報告のハブ。Events API を利用。                  |
-
-## 4. 各コンポーネントの詳細 (Component Details)
-
-### Frontend (GitHub Pages)
-
-- **役割**: ユーザーに対する UI を提供します。Flutter で開発し、静的な HTML/CSS/JS ファイルにビルドしたものを GitHub Pages でホスティングします。
-- **機能**:
-  - トレーニング記録の入力フォーム
-  - 過去の記録の閲覧
-  - 自身のランクや活動状況の表示
+- **役割**: トレーニング記録の入力・閲覧 UI を提供する
+- **データアクセス**: `TrainingRepository` インターフェースを介して永続化層にアクセスする。現在の実装は `SupabaseTrainingRepository`（クエリ構築は `TrainingRecordsApi` シームに分離しテスト可能にしている）
+- **認証**: `AuthService` インターフェース + `AuthGate` により、ログイン状態に応じてログイン画面と一覧画面を切り替える。セッションは supabase_flutter が自動で永続化・復元する
+- **Slack との関係**: 記録から Slack 投稿用の文言を生成しクリップボードへコピーする（投稿は手動）
+- **データ移行**: 旧ローカル永続化（Hive/IndexedDB）の記録が端末に残っており、かつサーバーが空の場合のみ、確認のうえ一括移行する（`LocalDataMigrator`）。移行後のローカルデータは切り戻し用に残しており、本番での動作確認が済んだら Hive 関連コードごと撤去する予定
 
 ### Backend (Supabase)
 
-- **役割**: アプリケーションのすべてのデータとビジネスロジックを管理します。
-- **Database (PostgreSQL)**:
-  - `users`: ユーザー情報と現在のランクを管理。
-  - `training_records`: 全メンバーのトレーニング記録を蓄積。
-- **Auth**:
-  - Slack ログインを提供し、ユーザーを識別します。データベースの RLS（Row Level Security）と連携し、データへのアクセス制御を安全に行います。
-- **Edge Functions**:
-  - **Slack Webhook**: 設定で指定したSlack の特定のチャンネルへの投稿を検知し、内容を解析してデータベースに保存します。
-  - **API**: Flutter アプリからのリクエスト（記録の作成・取得など）を処理します。
-  - **スケジュール実行**: 1 日 1 回などの頻度で定期実行され、全ユーザーのランクを自動で再計算・更新します。
+- **Database (PostgreSQL)**: `training_records` テーブルに記録を保存する。RLS（Row Level Security）により所有者のみが読み書きできる。スキーマは `supabase/migrations/` で管理する
+- **Auth**: email+password のログインのみ有効化し、サインアップは無効（ダッシュボードで作成した単一ユーザーのみが利用できる）
+- **接続情報**: Project URL と Publishable key（RLS 前提の公開可能キー）をビルド時に `--dart-define` で注入する
 
-## 5. データフロー (Data Flow)
+セットアップ手順は [supabase/README.md](../supabase/README.md) を参照。
 
-### 記録の投稿フロー
+### CI/CD (GitHub Actions)
 
-1. **アプリ経由**: ユーザーがアプリで記録を保存すると、Supabase の Edge Functions (API) が呼び出され、DB にデータが保存されます。
-2. **Slack 直接投稿経由**: メンバーが Slack に投稿すると、Slack Events API が発火し、Supabase の Edge Functions (Webhook) を呼び出します。関数が投稿内容を解析し、DB にデータを保存します。
+- **deploy.yml**: `main` へのプッシュでビルドし GitHub Pages へデプロイする。Supabase の接続情報はリポジトリ Variables から注入する
+- **supabase-keepalive.yml**: Supabase Free プランの一時停止（約 1 週間の非アクティブで発生）を防ぐため、週 2 回 REST API へアクセスする
 
-### ランク集計フロー
+## 3. 将来構想 (Future Vision) ※未実装
 
-1. Supabase のスケジュールされた Edge Function が定期的に起動します。
-2. `training_records`テーブルから全記録を読み込みます。
-3. 各ユーザーのランクアップ/ダウン条件を判定します。
-4. 変更があった場合、`users`テーブルのランク情報を更新します。
+以下は要求（`docs/requirements.md`）に基づく構想であり、現在の実装には含まれていません。
 
-## 6. CI/CD
-
-- GitHub リポジトリの`main`ブランチにプッシュ（またはマージ）されると、GitHub Actions が自動的に起動します。
-- Flutter Web アプリのビルドが行われ、生成された静的ファイルで GitHub Pages が更新され、ユーザーは常に最新版のアプリケーションを利用できます。
+- **マルチユーザー化**: Supabase Auth の Slack OAuth によるログインを追加し、RLS ポリシーを緩和してメンバー同士の記録閲覧を可能にする。`users` テーブルでユーザー情報とランクを管理する
+- **ランクの自動更新**: 記録からランク（準会員〜マスター）を自動計算する。判定条件（週の定義・継続判定・降格ルール）の詳細化が必要
+- **Slack 連携の自動化**: 現在は文言生成+手動コピペ。自動投稿や Slack 投稿の自動取り込み（Events API）は一旦白紙とし、必要になった時点で方式を再検討する
