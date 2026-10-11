@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   super_clipboard: ^0.9.1
   hive_ce: ^2.19.3
-  hive_ce_flutter: ^2.0.1
+  hive_ce_flutter: ^2.4.0
   uuid: ^4.6.0
 
 dev_dependencies:
